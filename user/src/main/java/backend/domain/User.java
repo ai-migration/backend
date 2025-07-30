@@ -12,6 +12,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
 import lombok.Data;
 
 @Entity
@@ -24,11 +27,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(unique = true)
     private String email;
 
+    @NotBlank(message = "비밀번호는 필수 입력 값입니다.")    
+    @Pattern(regexp = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?=\\S+$).{8,16}", message = "비밀번호는 8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요.")   
     private String password;
 
     private String nickname;
+
+    @Column(nullable = false)
+    private Boolean tokenIssued = false;
 
     @PostPersist
     public void onPostPersist() {

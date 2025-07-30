@@ -11,10 +11,15 @@ import lombok.*;
 @ToString
 public class TokenRequested extends AbstractEvent {
 
-    private Long id;
+    private Long id;    
+    private String email;
+    private boolean tokenIssued;
 
     public TokenRequested(User aggregate) {
         super(aggregate);
+        this.id = aggregate.getId();
+        this.email = aggregate.getEmail();
+        this.tokenIssued = aggregate.getTokenIssued();
     }
 
     public TokenRequested() {

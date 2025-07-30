@@ -12,6 +12,9 @@ import lombok.*;
 public class UserRegistered extends AbstractEvent {
 
     private Long id;
+    private String email;
+    // private String password;
+    private String nickname;
 
     public UserRegistered(User aggregate) {
         super(aggregate);
