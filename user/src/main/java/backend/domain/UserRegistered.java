@@ -15,6 +15,7 @@ public class UserRegistered extends AbstractEvent {
     private String email;
     // private String password;
     private String nickname;
+    private String role;
 
     public UserRegistered(User aggregate) {
         super(aggregate);
