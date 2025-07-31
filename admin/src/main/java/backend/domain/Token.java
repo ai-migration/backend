@@ -22,7 +22,7 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Long userId; // user 도메인에서의 id, 외래키임
+    private Long userId; // user 도메인에서의 id, 유사 외래키임
 
     private String apiKey;
 

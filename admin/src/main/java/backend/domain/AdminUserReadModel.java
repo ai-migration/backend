@@ -11,14 +11,14 @@ public class AdminUserReadModel {
     
     @Id
     //@GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
+    private Long id; 
 
     @Column(nullable = false, unique = true)
     private String email;
     private String password;
     private String nickname;
     private String role;
-    
+
     @Column(nullable = false)
     private boolean tokenIssued;
 }
