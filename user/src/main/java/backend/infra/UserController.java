@@ -50,6 +50,7 @@ public class UserController {
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setNickname(request.getNickname());
+        user.setRole("USER");
 
         User saved = userRepository.save(user);
         new UserRegistered(saved).publish();

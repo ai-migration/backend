@@ -37,6 +37,9 @@ public class User {
     private String nickname;
 
     @Column(nullable = false)
+    private String role = "USER";
+
+    @Column(nullable = false)
     private Boolean tokenIssued = false;
 
     @PostPersist
