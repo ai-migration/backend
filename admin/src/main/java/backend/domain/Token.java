@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
 import javax.persistence.*;
 import lombok.Data;
 
@@ -20,7 +22,7 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String userId;
+    private Long userId; // user 도메인에서의 id, 외래키임
 
     private String apiKey;
 
@@ -39,11 +41,14 @@ public class Token {
     public static void requestTokenPolicy(TokenRequested tokenRequested) {
         //implement business logic here:
 
-        /** Example 1:  new item 
+        // Example 1:  new item 
         Token token = new Token();
-        repository().save(token);
+        token.setUserId(tokenRequested.getUserId());
+        token.setApiKey(UUID.randomUUID().toString());
+        token.setActive(true);
+        token.setCreatedAt(new Date());
 
-        */
+        repository().save(token);
 
         /** Example 2:  finding and process
         
