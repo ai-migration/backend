@@ -24,7 +24,7 @@ import lombok.Data;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true)
@@ -36,8 +36,8 @@ public class User {
 
     private String nickname;
 
-    @Column(nullable = false)
-    private String role = "USER";
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
 
     @Column(nullable = false)
     private Boolean tokenIssued = false;

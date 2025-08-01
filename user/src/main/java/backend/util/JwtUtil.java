@@ -7,6 +7,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import backend.domain.RoleType;
+
 import java.util.Date;
 
 @Component
@@ -18,9 +20,10 @@ public class JwtUtil {
     @Value("${jwt.expirationMs}")
     private long expirationMs;
 
-    public String generateToken(Long userId) {
+    public String generateToken(Long userId, RoleType role) {
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
+                .claim("role", role.name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(SignatureAlgorithm.HS256, secretKey.getBytes())
