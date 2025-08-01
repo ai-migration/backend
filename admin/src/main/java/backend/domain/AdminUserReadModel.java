@@ -17,7 +17,7 @@ public class AdminUserReadModel {
     private String email;
     private String password;
     private String nickname;
-    private String role;
+    private RoleType role;
 
     @Column(nullable = false)
     private boolean tokenIssued;

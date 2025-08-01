@@ -2,6 +2,7 @@ package backend.dto;
 
 import java.time.LocalDateTime;
 
+import backend.domain.RoleType;
 import lombok.Data;
 
 @Data
@@ -10,7 +11,7 @@ public class AdminUserDetailResponseDto {
     private Long userId;
     private String email;
     private String nickname;
-    private String role;
+    private RoleType role;
     private boolean tokenIssued;
 
     // Token 정보

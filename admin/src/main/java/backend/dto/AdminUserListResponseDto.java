@@ -1,5 +1,6 @@
 package backend.dto;
 
+import backend.domain.RoleType;
 import lombok.Data;
 
 @Data
@@ -8,6 +9,6 @@ public class AdminUserListResponseDto {
     private Long userId;
     private String email;
     private String nickname;
-    private String role;
+    private RoleType role;
     private boolean tokenIssued;
 }
