@@ -14,4 +14,6 @@ public interface TokenRepository
 
     Optional<Token> findByUserId(Long userId);
 
+    boolean existsByUserId(Long id);
+
 }

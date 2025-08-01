@@ -53,7 +53,7 @@ public class AdminUserReadModelViewHandler {
             if (adminUserReadModelOptional.isPresent()) {
                 AdminUserReadModel adminUserReadModel = adminUserReadModelOptional.get();
                 // view 객체에 이벤트의 eventDirectValue 를 set 함
-                adminUserReadModel.setTokenIssued(tokenRequested.getTokenIssued());
+                adminUserReadModel.setTokenIssued(tokenRequested.isTokenIssued());
                 // view 레파지 토리에 save
                 adminUserReadModelRepository.save(adminUserReadModel);
             }

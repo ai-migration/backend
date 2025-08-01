@@ -10,6 +10,6 @@ import lombok.*;
 public class TokenRequested extends AbstractEvent {
 
     private Long Id;
-    private Boolean tokenIssued;
+    private boolean tokenIssued;
 
 }

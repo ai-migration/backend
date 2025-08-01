@@ -37,14 +37,30 @@ public class Token {
         return tokenRepository;
     }
 
+    
+
     //<<< Clean Arch / Port Method
     public static void requestTokenPolicy(TokenRequested tokenRequested) {
         //implement business logic here:
 
+        // api key 하드코딩
+        final String STATIC_API_KEY = "your-hardcoded-api-key";
+
+        // Repository 직접 접근 (기존 구조 유지)
+        TokenRepository tokenRepository = AdminApplication.applicationContext.getBean(TokenRepository.class);
+
+        // 이미 발급된 토큰인지 확인 (중복 방지)
+        boolean alreadyExists = tokenRepository.existsByUserId(tokenRequested.getId());
+        if (alreadyExists || tokenRequested.isTokenIssued()) {
+            System.out.println("이미 토큰이 발급된 사용자입니다. userId=" + tokenRequested.getId());
+            return;
+    }
+
+
         // Example 1:  new item 
         Token token = new Token();
         token.setUserId(tokenRequested.getId());
-        token.setApiKey(UUID.randomUUID().toString());
+        token.setApiKey(STATIC_API_KEY);
         token.setActive(true);
         token.setCreatedAt(new Date());
 
