@@ -43,7 +43,7 @@ public class Token {
 
         // Example 1:  new item 
         Token token = new Token();
-        token.setUserId(tokenRequested.getUserId());
+        token.setUserId(tokenRequested.getId());
         token.setApiKey(UUID.randomUUID().toString());
         token.setActive(true);
         token.setCreatedAt(new Date());

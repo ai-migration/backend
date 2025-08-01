@@ -9,7 +9,7 @@ import lombok.*;
 @ToString
 public class TokenRequested extends AbstractEvent {
 
-    private Long userId;
-    private String email;
+    private Long Id;
+    private Boolean tokenIssued;
 
 }
