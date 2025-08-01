@@ -15,10 +15,16 @@ public class UserRegistered extends AbstractEvent {
     private String email;
     // private String password;
     private String nickname;
-    private String role;
+    private RoleType role;
+    private Boolean tokenIssued;
 
     public UserRegistered(User aggregate) {
         super(aggregate);
+        this.id = aggregate.getId();
+        this.email = aggregate.getEmail();
+        this.nickname = aggregate.getNickname();
+        this.role = aggregate.getRole();
+        this.tokenIssued = false;  // ✅ 여기서 강제 고정!
     }
 
     public UserRegistered() {

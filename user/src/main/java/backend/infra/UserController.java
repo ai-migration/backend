@@ -50,7 +50,7 @@ public class UserController {
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setNickname(request.getNickname());
-        user.setRole("USER");
+        user.setRole(RoleType.USER);
 
         User saved = userRepository.save(user);
         new UserRegistered(saved).publish();
@@ -63,16 +63,32 @@ public class UserController {
         //TODO: process POST request
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
 
-        if(userOpt.isPresent() && userOpt.get().getPassword().equals(request.getPassword())){
-            User user = userOpt.get();
-            new UserLoggedIn(user).publish();
 
-            String token = jwtUtil.generateToken(user.getId());
-            return ResponseEntity.ok("Bearer " + token);
-
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패");
+        // email(사용자의 로그인Id) 존재 여부 확인
+        if(userOpt.isEmpty()){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이메일이 존재하지 않습니다.");
         }
+        
+        User user = userOpt.get();
+        
+        // 비밀번호 암호화 비교
+        // if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+        //     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다.");
+        // }
+        // 비밀번호 평문 비교
+        if (!user.getPassword().equals(request.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다.");
+        }
+
+        // Role 일치 여부 확인 (프론트에서 받은 role과 DB에 저장된 사용자 role 비교)
+        if(!user.getRole().equals(request.getRole())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("접근 권한이 없습니다.");
+        }
+        
+        new UserLoggedIn(user).publish();
+
+        String token = jwtUtil.generateToken(user.getId(), user.getRole());
+        return ResponseEntity.ok("Bearer " + token);
     }
 
     // 3. 로그아웃
