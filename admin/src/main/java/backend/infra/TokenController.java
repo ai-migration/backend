@@ -14,17 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-
-
 
 
 //<<< Clean Arch / Inbound Adaptor
@@ -37,6 +28,7 @@ public class TokenController {
 
     private final TokenRepository tokenRepository;
     private final AdminUserReadModelRepository userRepository;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     // 1. openAPI 키 발급 요청 처리 (policy)
     // policyhandlder 에서 처리
@@ -46,6 +38,7 @@ public class TokenController {
     @GetMapping("/users")
     public List<AdminUserListResponseDto> getAllUsers() {
         return userRepository.findAll().stream()
+            .filter(user -> user.getRole() == RoleType.USER)
             .map(user -> {
                 AdminUserListResponseDto dto = new AdminUserListResponseDto();
                 dto.setUserId(user.getId());
@@ -86,13 +79,31 @@ public class TokenController {
     
 
     // 4. 게시물 등록 (command) => 게시판도메인에서 처리
+    @PostMapping("/posts")
+    public String registerPost(@RequestBody PostRegisterRequested event) {
+        //TODO: process POST request
+        kafkaTemplate.send("PostRegisterRequested", event);  // Kafka 발행
+        return "게시글 등록 요청됨";
+    }
     
     
-
     // 5. 게시물 수정 (command) => 게시판도메인에서 처리
+    @PutMapping("/posts/{postId}")
+    public String updatePost(@RequestBody PostUpdateRequested event) {
+        //TODO: process POST request
+        kafkaTemplate.send("PostUpdateRequested", event);
+        return "게시글 수정 요청됨";
+    }
     
 
     // 6. 게시물 삭제 (command) => 게시판도메인에서 처리
+    @DeleteMapping("/posts/{postId}")
+    public String deletePost(@RequestBody PostDeleteRequested event) {
+        //TODO: process POST request
+        kafkaTemplate.send("PostDeleteRequested", event);
+        return "게시글 삭제 요청됨";
+    }
+    
 
 }
 //>>> Clean Arch / Inbound Adaptor
