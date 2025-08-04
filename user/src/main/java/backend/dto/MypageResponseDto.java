@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class MypageResponse {
+public class MypageResponseDto {
     private String email;
     private String nickname;
     private boolean tokenIssued;

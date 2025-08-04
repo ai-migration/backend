@@ -1,9 +1,11 @@
 package backend.infra;
 
 import backend.domain.*;
-import backend.dto.LoginRequest;
-import backend.dto.MypageResponse;
-import backend.dto.RegisterRequest;
+import backend.dto.LoginRequestDto;
+import backend.dto.LoginResponseDto;
+import backend.dto.MypageResponseDto;
+import backend.dto.RegisterRequestDto;
+import backend.dto.RegisterResponseDto;
 import backend.util.JwtUtil;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -40,7 +42,7 @@ public class UserController {
 
     // 1. 회원가입
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequestDto request) {
         //TODO: process POST request
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 사용 중인 이메일입니다.");
@@ -54,12 +56,20 @@ public class UserController {
 
         User saved = userRepository.save(user);
         new UserRegistered(saved).publish();
-        return ResponseEntity.ok("회원가입 완료");
+
+        RegisterResponseDto response = new RegisterResponseDto(
+            saved.getId(),
+            saved.getEmail(),
+            saved.getNickname(),
+            saved.getRole()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // 2. 로그인
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequestDto request) {
         //TODO: process POST request
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
 
@@ -88,7 +98,8 @@ public class UserController {
         new UserLoggedIn(user).publish();
 
         String token = jwtUtil.generateToken(user.getId(), user.getRole());
-        return ResponseEntity.ok("Bearer " + token);
+        LoginResponseDto response = new LoginResponseDto("Bearer " + token, user.getNickname(), user.getRole());
+        return ResponseEntity.ok(response);
     }
 
     // 3. 로그아웃
@@ -119,7 +130,7 @@ public class UserController {
         Long userId = jwtUtil.extractUserIdFromToken(accessToken); // 사용자 ID 추출
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다.")); // 유저 조회
         
-        MypageResponse response = new MypageResponse(
+        MypageResponseDto response = new MypageResponseDto(
             user.getEmail(),
             user.getNickname(),
             user.getTokenIssued());
