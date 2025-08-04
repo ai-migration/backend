@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import backend.domain.RoleType;
 import lombok.Data;
+import java.util.Date;
+
 
 @Data
 public class AdminUserDetailResponseDto {
@@ -17,5 +19,5 @@ public class AdminUserDetailResponseDto {
     // Token 정보
     private String apiKey;
     private boolean active;
-    private LocalDateTime createdAt;
+    private Date createdAt;
 }

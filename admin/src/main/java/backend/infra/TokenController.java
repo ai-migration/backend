@@ -10,13 +10,17 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Date;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.messaging.Message;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -72,7 +76,7 @@ public class TokenController {
         tokenOpt.ifPresent(token -> {
             dto.setApiKey(token.getApiKey());
             dto.setActive(token.getActive());
-            dto.setCreatedAt(token.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+            dto.setCreatedAt(token.getCreatedAt());
         });
 
         return dto;
@@ -94,16 +98,28 @@ public class TokenController {
     @PostMapping("/posts")
     public String registerPost(@RequestBody PostRegisterRequested event) {
         //TODO: process POST request
-        kafkaTemplate.send("PostRegisterRequested", event);  // Kafka 발행
+        Message<PostRegisterRequested> message = MessageBuilder
+            .withPayload(event)
+            .setHeader("type", "PostRegisterRequested")
+            .build();
+        kafkaTemplate.send("backend", message)
+            .addCallback(
+                result -> System.out.println("✅ Kafka 발행 성공!"),
+                ex -> System.out.println("❌ Kafka 발행 실패: " + ex.getMessage())
+        ); // Kafka 발행
         return "게시글 등록 요청됨";
     }
     
     
-    // 6. 게시물 수정 (command) => 게시판도메인에서 처리
+    // 6. 게시물 수정 (comman d) => 게시판도메인에서 처리
     @PutMapping("/posts/{postId}")
     public String updatePost(@RequestBody PostUpdateRequested event) {
         //TODO: process POST request
-        kafkaTemplate.send("PostUpdateRequested", event);
+        Message<PostUpdateRequested> message = MessageBuilder
+        .withPayload(event)
+        .setHeader("type", "PostUpdateRequested")
+        .build();
+        kafkaTemplate.send("backend", message);
         return "게시글 수정 요청됨";
     }
     
@@ -112,7 +128,11 @@ public class TokenController {
     @DeleteMapping("/posts/{postId}")
     public String deletePost(@RequestBody PostDeleteRequested event) {
         //TODO: process POST request
-        kafkaTemplate.send("PostDeleteRequested", event);
+        Message<PostDeleteRequested> message = MessageBuilder
+        .withPayload(event)
+        .setHeader("type", "PostDeleteRequested")
+        .build();
+        kafkaTemplate.send("backend", message);
         return "게시글 삭제 요청됨";
     }
 
