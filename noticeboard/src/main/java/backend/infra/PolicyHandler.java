@@ -4,10 +4,6 @@ import backend.config.kafka.KafkaProcessor;
 import backend.domain.*;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.Map;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import javax.naming.NameParser;
 import javax.naming.NameParser;
 import javax.transaction.Transactional;
@@ -34,36 +30,23 @@ public class PolicyHandler {
         value = KafkaProcessor.INPUT,
         condition = "headers['type']=='PostRegisterRequested'"
     )
-    public void handlePostRegisterRequested(@Payload byte[] rawBytes) {
-        try {
-        // Step 1. byte[] → String
-            String rawJson = new String(rawBytes, "UTF-8");
-            System.out.println("🟢 Kafka JSON 수신: " + rawJson);
+    public void wheneverPostRegisterRequested_RegisterPostPolicy(
+        @Payload PostRegisterRequested postRegisterRequested
+    ) {
+        PostRegisterRequested event = postRegisterRequested;
+        System.out.println(
+            "\n\n##### listener RegisterPostPolicy : " +
+            postRegisterRequested +
+            "\n\n"
+        );
 
-        // Step 2. JSON 파싱
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> wrapper = mapper.readValue(rawJson, Map.class);
-            Map<String, Object> payload = (Map<String, Object>) wrapper.get("payload");
-
-        // Step 3. DTO로 변환
-            PostRegisterRequested event = mapper.convertValue(payload, PostRegisterRequested.class);
-            System.out.println("✅ 이벤트 매핑 성공: " + event);
-
-        // Step 4. 저장
-            Post post = new Post();
-            post.setPostId(event.getPostId());
-            post.setTitle(event.getTitle());
-            post.setContent(event.getContent());
-            post.setType(event.getType());
-
-            postRepository.save(post);
-
-            System.out.println("✅ Post 저장 완료");
-
-        } catch (Exception e) {
-            System.out.println("❌ 메시지 처리 실패: " + e.getMessage());
-            e.printStackTrace();
-        }
+        // Sample Logic //
+        Post post = new Post();
+        post.setPostId(postRegisterRequested.getPostId());
+        post.setTitle(postRegisterRequested.getTitle());
+        post.setContent(postRegisterRequested.getContent());
+        post.setType(postRegisterRequested.getType());
+        postRepository.save(post);
     }
 
     @StreamListener(
