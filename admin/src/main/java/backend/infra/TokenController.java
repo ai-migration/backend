@@ -3,6 +3,7 @@ package backend.infra;
 import backend.domain.*;
 import backend.dto.AdminUserDetailResponseDto;
 import backend.dto.AdminUserListResponseDto;
+import backend.dto.UpdateUserRoleRequestDto;
 import lombok.RequiredArgsConstructor;
 
 import java.time.ZoneId;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -76,9 +78,19 @@ public class TokenController {
         return dto;
 
     }
+
+    // 4. 사용자 권한 관리
+    @PatchMapping("users/{userId}/role")
+    public ResponseEntity<?> updateUserRole(@PathVariable Long userId, @RequestBody UpdateUserRoleRequestDto request){
+        AdminUserReadModel user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("사용자 없음"));
+        user.setRole(request.getRole());
+        userRepository.save(user);
+        return ResponseEntity.ok("사용자 권한이 " + request.getRole() + "로 변경되었습니다.");
+
+    }
     
 
-    // 4. 게시물 등록 (command) => 게시판도메인에서 처리
+    // 5. 게시물 등록 (command) => 게시판도메인에서 처리
     @PostMapping("/posts")
     public String registerPost(@RequestBody PostRegisterRequested event) {
         //TODO: process POST request
@@ -87,7 +99,7 @@ public class TokenController {
     }
     
     
-    // 5. 게시물 수정 (command) => 게시판도메인에서 처리
+    // 6. 게시물 수정 (command) => 게시판도메인에서 처리
     @PutMapping("/posts/{postId}")
     public String updatePost(@RequestBody PostUpdateRequested event) {
         //TODO: process POST request
@@ -96,13 +108,14 @@ public class TokenController {
     }
     
 
-    // 6. 게시물 삭제 (command) => 게시판도메인에서 처리
+    // 7. 게시물 삭제 (command) => 게시판도메인에서 처리
     @DeleteMapping("/posts/{postId}")
     public String deletePost(@RequestBody PostDeleteRequested event) {
         //TODO: process POST request
         kafkaTemplate.send("PostDeleteRequested", event);
         return "게시글 삭제 요청됨";
     }
+
     
 
 }
