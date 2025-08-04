@@ -11,7 +11,7 @@ import lombok.*;
 @ToString
 public class PostDeleted extends AbstractEvent {
 
-    private Long id;
+    private Long postId;
 
     public PostDeleted(Post aggregate) {
         super(aggregate);
