@@ -1,5 +1,6 @@
 package backend.domain;
 
+import backend.infra.AbstractEvent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostUpdateRequested {
+public class PostUpdateRequested extends AbstractEvent{
     private Long postId;
     private String title;
     private String content;

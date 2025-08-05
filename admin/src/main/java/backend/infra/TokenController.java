@@ -102,11 +102,8 @@ public class TokenController {
             .withPayload(event)
             .setHeader("type", "PostRegisterRequested")
             .build();
-        kafkaTemplate.send("backend", message)
-            .addCallback(
-                result -> System.out.println("✅ Kafka 발행 성공!"),
-                ex -> System.out.println("❌ Kafka 발행 실패: " + ex.getMessage())
-        ); // Kafka 발행
+        event.publishAfterCommit();
+        System.out.println("✅ Kafka 발행 성공!");
         return "게시글 등록 요청됨";
     }
     
@@ -116,10 +113,10 @@ public class TokenController {
     public String updatePost(@RequestBody PostUpdateRequested event) {
         //TODO: process POST request
         Message<PostUpdateRequested> message = MessageBuilder
-        .withPayload(event)
-        .setHeader("type", "PostUpdateRequested")
-        .build();
-        kafkaTemplate.send("backend", message);
+            .withPayload(event)
+            .setHeader("type", "PostUpdateRequested")
+            .build();
+        event.publishAfterCommit();
         return "게시글 수정 요청됨";
     }
     
@@ -129,10 +126,10 @@ public class TokenController {
     public String deletePost(@RequestBody PostDeleteRequested event) {
         //TODO: process POST request
         Message<PostDeleteRequested> message = MessageBuilder
-        .withPayload(event)
-        .setHeader("type", "PostDeleteRequested")
-        .build();
-        kafkaTemplate.send("backend", message);
+            .withPayload(event)
+            .setHeader("type", "PostDeleteRequested")
+            .build();
+        event.publishAfterCommit();
         return "게시글 삭제 요청됨";
     }
 

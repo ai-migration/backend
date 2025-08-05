@@ -1,14 +1,6 @@
 server:
   port: 8080
 
-spring:
-  application:
-    name: admin
-  kafka:
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
 ---
 
 spring:
@@ -39,7 +31,7 @@ spring:
                 key:
                   serde: org.apache.kafka.common.serialization.Serdes$StringSerde
                 value:
-                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                  serde: org.springframework.kafka.support.serializer.JsonSerde
       bindings:
         event-in:
           group: admin
