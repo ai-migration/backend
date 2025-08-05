@@ -1,27 +1,30 @@
-server:
-  port: 8080
-
 spring:
-  application:
-    name: user
+  profiles:
+    active: default
+
 ---
 
 spring:
   profiles: default
-  h2:
-    console:
-      enabled: true
+
+  application:
+    name: user
+
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 1234
+    url: jdbc:mysql://localhost:3307/egov_llm_platform?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: teammate
+    password: tm1234
+
   jpa:
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
+
   cloud:
     stream:
       kafka:
@@ -38,43 +41,51 @@ spring:
       bindings:
         event-in:
           group: user
-#<<< EDA / Topic Name
           destination: backend
-#>>> EDA / Topic Name
           contentType: application/json
         event-out:
-#<<< EDA / Topic Name
           destination: backend
-#>>> EDA / Topic Name
           contentType: application/json
 
 jwt:
   secret: my-secret-jwt-key
-  expirationMs: 3600000  # 1시간 (단위: ms)
+  expirationMs: 3600000
+
+api:
+  url:
+    user: http://localhost:8082
+
+server:
+  port: 8082
 
 logging:
   level:
     org.hibernate.type: trace
     org.springframework.cloud: debug
 
-api:
-  url: 
-    user: localhost:8082 
-    
-
-server:
-  port: 8082
-
 ---
 
 spring:
   profiles: docker
+
+  application:
+    name: user
+
+  datasource:
+    url: jdbc:mysql://mysql-llm:3306/egov_llm_platform?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: teammate
+    password: tm1234
+
   jpa:
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
+
   cloud:
     stream:
       kafka:
@@ -102,7 +113,8 @@ jwt:
   expirationMs: 3600000
 
 api:
-  url: 
-    user: user:8080 
-    
+  url:
+    user: http://user:8080
 
+server:
+  port: 8080
