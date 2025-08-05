@@ -1,13 +1,18 @@
 server:
   port: 8080
 
-spring:
-  application:
-    name: admin
 ---
 
 spring:
   profiles: default
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:mem:admindb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 1234
   jpa:
     properties:
       hibernate:
@@ -26,7 +31,7 @@ spring:
                 key:
                   serde: org.apache.kafka.common.serialization.Serdes$StringSerde
                 value:
-                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                  serde: org.springframework.kafka.support.serializer.JsonSerde
       bindings:
         event-in:
           group: admin
