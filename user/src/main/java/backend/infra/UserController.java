@@ -90,10 +90,10 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 올바르지 않습니다.");
         }
 
-        // Role 일치 여부 확인 (프론트에서 받은 role과 DB에 저장된 사용자 role 비교)
-        if(!user.getRole().equals(request.getRole())){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("접근 권한이 없습니다.");
-        }
+        // // Role 일치 여부 확인 (프론트에서 받은 role과 DB에 저장된 사용자 role 비교)
+        // if(!user.getRole().equals(request.getRole())){
+        //     return ResponseEntity.status(HttpStatus.FORBIDDEN).body("접근 권한이 없습니다.");
+        // }
         
         new UserLoggedIn(user).publish();
 
