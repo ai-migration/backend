@@ -1,0 +1,38 @@
+
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-llm
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: egov_llm_platform
+      MYSQL_USER: teammate
+      MYSQL_PASSWORD: tm1234
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - llm_net
+
+  mongo:
+    image: mongo:6.0
+    container_name: mongo-llm
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - llm_net
+
+volumes:
+  mysql_data:
+  mongo_data:
+
+networks:
+  llm_net:
+    driver: bridge
