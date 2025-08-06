@@ -4,6 +4,9 @@ import backend.config.kafka.KafkaProcessor;
 import backend.domain.*;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.Date;
+
 import javax.naming.NameParser;
 import javax.naming.NameParser;
 import javax.transaction.Transactional;
@@ -19,9 +22,6 @@ public class PolicyHandler {
 
     @Autowired
     PostRepository postRepository;
-
-    @Autowired
-    PostQueryRepository postQueryRepository;
 
     @StreamListener(KafkaProcessor.INPUT)
     public void whatever(@Payload String eventString) {}
@@ -46,7 +46,11 @@ public class PolicyHandler {
         post.setTitle(postRegisterRequested.getTitle());
         post.setContent(postRegisterRequested.getContent());
         post.setType(postRegisterRequested.getType());
+        post.setCreatedAt(new Date()); 
         postRepository.save(post);
+
+        PostRegistered postRegistered = new PostRegistered(post);
+        postRegistered.publishAfterCommit();
     }
 
     @StreamListener(
@@ -67,6 +71,9 @@ public class PolicyHandler {
         Post post = postRepository.findByPostId(event.getPostId())
             .orElseThrow(() -> new RuntimeException("Post Not Found"));
         postRepository.delete(post);
+
+        PostDeleted postDeleted = new PostDeleted(post);
+        postDeleted.publishAfterCommit();
     }
 
     @StreamListener(
@@ -88,8 +95,12 @@ public class PolicyHandler {
         post.setTitle(event.getTitle());
         post.setContent(event.getContent());
         post.setType(event.getType());
+        post.setUpdatedAt(new Date());
 
         postRepository.save(post);
+
+        PostUpdated postUpdated = new PostUpdated(post);
+        postUpdated.publishAfterCommit();
     }
 }
 //>>> Clean Arch / Inbound Adaptor
