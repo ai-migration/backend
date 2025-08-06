@@ -24,7 +24,7 @@ spring:
         - id: admin
           uri: http://localhost:8085
           predicates:
-            - Path=/tokens/**, 
+            - Path=/tokens/**, /admin/**
         - id: platform
           uri: http://localhost:8086
           predicates:
