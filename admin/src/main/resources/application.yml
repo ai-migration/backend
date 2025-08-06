@@ -1,24 +1,30 @@
-server:
-  port: 8080
+spring:
+  profiles:
+    active: default
 
 ---
 
 spring:
   profiles: default
-  h2:
-    console:
-      enabled: true
+
+  application:
+    name: admin
+
   datasource:
-    url: jdbc:h2:mem:admindb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 1234
+    url: jdbc:mysql://localhost:3307/egov_llm_platform?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: teammate
+    password: tm1234
+
   jpa:
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
+
   cloud:
     stream:
       kafka:
@@ -31,39 +37,55 @@ spring:
                 key:
                   serde: org.apache.kafka.common.serialization.Serdes$StringSerde
                 value:
-                  serde: org.springframework.kafka.support.serializer.JsonSerde
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
       bindings:
         event-in:
           group: admin
-#<<< EDA / Topic Name
           destination: backend
-#>>> EDA / Topic Name
           contentType: application/json
         event-out:
-#<<< EDA / Topic Name
           destination: backend
-#>>> EDA / Topic Name
           contentType: application/json
+
+jwt:
+  secret: my-secret-jwt-key
+  expirationMs: 3600000
+
+api:
+  url:
+    admin: http://localhost:8085
+
+server:
+  port: 8085
 
 logging:
   level:
     org.hibernate.type: trace
     org.springframework.cloud: debug
 
-
-server:
-  port: 8085
-
 ---
 
 spring:
   profiles: docker
+
+  application:
+    name: admin
+
+  datasource:
+    url: jdbc:mysql://mysql-llm:3306/egov_llm_platform?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: teammate
+    password: tm1234
+
   jpa:
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
+
   cloud:
     stream:
       kafka:
@@ -86,4 +108,13 @@ spring:
           destination: backend
           contentType: application/json
 
+jwt:
+  secret: my-secret-jwt-key
+  expirationMs: 3600000
 
+api:
+  url:
+    admin: http://admin:8080
+
+server:
+  port: 8080
