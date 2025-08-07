@@ -22,5 +22,20 @@ public class PolicyHandler {
 
     @StreamListener(KafkaProcessor.INPUT)
     public void whatever(@Payload String eventString) {}
+
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverUserRoleUpdated(@Payload UserRoleUpdated event) {
+        if (!event.validate()) return;
+
+        System.out.println("### UserRoleUpdated 이벤트 수신: " + event);
+
+        // Aggregate 수정
+        User user = userRepository.findById(event.getUserId())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setRole(event.getRole());
+        userRepository.save(user);
+    }
+
 }
 //>>> Clean Arch / Inbound Adaptor
