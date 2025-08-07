@@ -1,19 +1,9 @@
 package backend.domain;
 
 import backend.NoticeboardApplication;
-import backend.domain.PostDeleted;
-import backend.domain.PostRegistered;
-import backend.domain.PostUpdated;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import javax.persistence.*;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import java.util.Date;
+import javax.persistence.*;
 
 import lombok.Data;
 
@@ -24,7 +14,6 @@ import lombok.Data;
 public class Post {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long postId;
 
     private String title;
@@ -54,7 +43,7 @@ public class Post {
 
         /** Example 1:  new item */
         Post post = new Post();
-        // post.setPostId(postRegisterRequested.getPostId());
+        post.setPostId(postRegisterRequested.getPostId());
         post.setTitle(postRegisterRequested.getTitle());
         post.setContent(postRegisterRequested.getContent());
         post.setType(postRegisterRequested.getType());

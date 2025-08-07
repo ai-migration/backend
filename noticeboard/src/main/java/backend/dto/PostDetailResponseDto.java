@@ -18,6 +18,6 @@ public class PostDetailResponseDto {
     private String content;
     private PostType type;
     private Date createdAt;
-    private Date updateAt;
+    private Date updatedAt;
     private int viewCount;
 }
