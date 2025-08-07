@@ -14,6 +14,7 @@ import lombok.Data;
 public class Post {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long postId;
 
     private String title;
@@ -43,7 +44,7 @@ public class Post {
 
         /** Example 1:  new item */
         Post post = new Post();
-        post.setPostId(postRegisterRequested.getPostId());
+        // post.setPostId(postRegisterRequested.getPostId());
         post.setTitle(postRegisterRequested.getTitle());
         post.setContent(postRegisterRequested.getContent());
         post.setType(postRegisterRequested.getType());
