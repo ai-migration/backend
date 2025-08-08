@@ -39,6 +39,14 @@ spring:
           destination: backend
 #>>> EDA / Topic Name
           contentType: application/json
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: conversion_db
+      username: admin
+      password: admin123
+      authentication-database: admin
 
 logging:
   level:
@@ -54,7 +62,7 @@ aws:
   s3:
     bucket: codefile-storage
   credentials:
-    accessKey:
+    accessKey: 
     secretKey: 
 
 
