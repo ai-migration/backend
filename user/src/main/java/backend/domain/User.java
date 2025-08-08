@@ -49,20 +49,20 @@ public class User {
     @Column(nullable = false)
     private Boolean tokenIssued = false;
 
-    @PostPersist
-    public void onPostPersist() {
-        UserLoggedIn userLoggedIn = new UserLoggedIn(this);
-        userLoggedIn.publishAfterCommit();
-
-        UserLoggedOut userLoggedOut = new UserLoggedOut(this);
-        userLoggedOut.publishAfterCommit();
-
-        UserRegistered userRegistered = new UserRegistered(this);
-        userRegistered.publishAfterCommit();
-
-        TokenRequested tokenRequested = new TokenRequested(this);
-        tokenRequested.publishAfterCommit();
-    }
+//    @PostPersist
+//    public void onPostPersist() {
+//        UserLoggedIn userLoggedIn = new UserLoggedIn(this);
+//        userLoggedIn.publishAfterCommit();
+//
+//        UserLoggedOut userLoggedOut = new UserLoggedOut(this);
+//        userLoggedOut.publishAfterCommit();
+//
+//        UserRegistered userRegistered = new UserRegistered(this);
+//        userRegistered.publishAfterCommit();
+//
+//        TokenRequested tokenRequested = new TokenRequested(this);
+//        tokenRequested.publishAfterCommit();
+//    }
 
     public static UserRepository repository() {
         UserRepository userRepository = UserApplication.applicationContext.getBean(

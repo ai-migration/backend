@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.*;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Entity
 @Table(name = "Agent_table")
@@ -23,8 +24,6 @@ public class Agent {
     private Long id;
 
     private Long userId;
-
-    private String filePath;
 
     private String inputeGovFrameVer;
 

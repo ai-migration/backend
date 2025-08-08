@@ -49,6 +49,16 @@ logging:
 server:
   port: 8084
 
+aws:
+  region: ap-northeast-2
+  s3:
+    bucket: codefile-storage
+  credentials:
+    accessKey:
+    secretKey: 
+
+
+
 ---
 
 spring:

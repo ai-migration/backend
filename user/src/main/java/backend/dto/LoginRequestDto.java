@@ -11,5 +11,4 @@ import lombok.NoArgsConstructor;
 public class LoginRequestDto { // 프론트->백엔트 요청
     private String email;
     private String password;
-    private RoleType role;
 }
