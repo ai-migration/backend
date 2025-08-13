@@ -6,9 +6,13 @@ import backend.dto.AdminUserListResponseDto;
 import backend.dto.UpdateUserRoleRequestDto;
 import lombok.RequiredArgsConstructor;
 
+import java.io.IOException;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.Date;
 
@@ -17,11 +21,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 
 //<<< Clean Arch / Inbound Adaptor
@@ -133,7 +139,40 @@ public class TokenController {
         return "게시글 삭제 요청됨";
     }
 
-    
+    ///////////////////////////
+    /// test progress
+    /// ////////////////////////////
+    private final ExecutorService executor = Executors.newCachedThreadPool();
+
+    @GetMapping(value = "/test", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter stream() {
+        SseEmitter emitter = new SseEmitter(0L); // 타임아웃 없음
+
+        executor.submit(() -> {
+            try {
+                for (int i = 1; i <= 10; i++) {
+                    // 1~3초 랜덤 대기
+                    long delay = ThreadLocalRandom.current().nextLong(1000, 3001);
+                    Thread.sleep(delay);
+
+                    String msg = "메시지 " + i + " (지연: " + (delay / 1000) + "초)";
+                    emitter.send(SseEmitter.event()
+                            .name("step")
+                            .id(String.valueOf(i))
+                            .data(msg));
+
+                    System.out.println("전송: " + msg);
+                }
+
+                emitter.send(SseEmitter.event().name("done").data("모든 메시지 전송 완료"));
+                emitter.complete();
+            } catch (IOException | InterruptedException e) {
+                emitter.completeWithError(e);
+            }
+        });
+
+        return emitter;
+    }
 
 }
 //>>> Clean Arch / Inbound Adaptor

@@ -93,7 +93,7 @@ public class UserController {
         new UserLoggedIn(user).publish();
 
         String token = jwtUtil.generateToken(user.getId(), user.getRole());
-        LoginResponseDto response = new LoginResponseDto("Bearer " + token, user.getNickname(), user.getRole());
+        LoginResponseDto response = new LoginResponseDto("Bearer " + token, user.getId(), user.getNickname(), user.getRole());
         return ResponseEntity.ok(response);
     }
 
