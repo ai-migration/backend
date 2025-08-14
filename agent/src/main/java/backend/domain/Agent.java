@@ -23,7 +23,11 @@ public class Agent {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    private Long jobId;
+
     private Long userId;
+
+    private String filePath;
 
     private String inputeGovFrameVer;
 

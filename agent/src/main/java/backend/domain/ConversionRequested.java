@@ -1,15 +1,13 @@
 package backend.domain;
 
-import backend.domain.*;
 import backend.infra.AbstractEvent;
-import java.time.LocalDate;
-import java.util.*;
 import lombok.*;
 
 //<<< DDD / Domain Event
 @Data
 @ToString
 public class ConversionRequested extends AbstractEvent {
+    private Long jobId;
 
     private Long userId;
 
