@@ -49,10 +49,13 @@ spring:
                   serde: org.apache.kafka.common.serialization.Serdes$StringSerde
       bindings:
         event-in:
-          group: agent
-          destination: backend
+          group: java
+#<<< EDA / Topic Name
+          destination: java
+#>>> EDA / Topic Name
           contentType: application/json
         event-out:
+#<<< EDA / Topic Name
           destination: backend
           contentType: application/json
 

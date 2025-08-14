@@ -40,6 +40,21 @@ public class AgentController {
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
+    private String generatePresignedUrl(String bucketName, String s3Path, Duration expireDuration) {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(s3Path)
+                .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(expireDuration)
+                .getObjectRequest(getObjectRequest)
+                .build();
+
+        PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
+        return presignedRequest.url().toString();
+    }
+
     @PostMapping(value = "/conversion", consumes = "multipart/form-data")
     public ResponseEntity<?> conversion(@RequestPart("agent") Agent agent, @RequestPart("file") MultipartFile file) throws IOException {
         System.out.println("변환 요청");
@@ -60,8 +75,10 @@ public class AgentController {
 
         s3Client.putObject(putObjectRequest, software.amazon.awssdk.core.sync.RequestBody.fromBytes(file.getBytes()));
 
+        String presignedUrl = generatePresignedUrl(bucketName, s3SavePath, Duration.ofMinutes(60));
+
         ConversionLog log = new ConversionLog();
-        log.setJobId(agent.getId());
+        log.setJobId(agent.getJobId());
         log.setUserId(agent.getUserId());
         log.setS3Path(s3SavePath);
         log.setSavedAt(new Date());
@@ -69,7 +86,8 @@ public class AgentController {
         System.out.println("Saved document: " + saved);
 
         // agent 기능 구현 완료 시 주석 해제
-//        agent.conversionEvent();
+        agent.setFilePath(presignedUrl);
+        agent.conversionEvent();
         return ResponseEntity.ok().build();
     }
     
@@ -94,24 +112,13 @@ public class AgentController {
                 .orElseThrow(() -> new RuntimeException("해당 파일을 찾을 수 없습니다."));
 
         String s3Path = log.getS3Path();
-
-        // Presigned URL 생성
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(s3Path)
-                .build();
-
-        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(10))
-                .getObjectRequest(getObjectRequest)
-                .build();
-        PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
-        String presignedUrl = presignedRequest.url().toString();
+        String presignedUrl = generatePresignedUrl(bucketName, s3Path, Duration.ofMinutes(10));
 
         Map<String, String> response = new HashMap<>();
         response.put("path", presignedUrl);
 
         return ResponseEntity.ok(response);
     }
+
 }
 //>>> Clean Arch / Inbound Adaptor

@@ -11,13 +11,14 @@ spring:
     name: user
 
   datasource:
-    url: jdbc:mysql://18.117.111.18:3306/egov_llm_platform?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://43.201.38.84:3306/egov_llm_platform?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: teammate          # (권장) 루트 대신 전용 계정
     password: tm1234
 
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
       ddl-auto: update
     properties:
       hibernate:

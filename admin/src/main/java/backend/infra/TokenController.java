@@ -145,8 +145,10 @@ public class TokenController {
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     @GetMapping(value = "/test", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter stream() {
+    public SseEmitter stream(@RequestParam("userId") Long userId, @RequestParam("jobId") String jobId) {
         SseEmitter emitter = new SseEmitter(0L); // 타임아웃 없음
+        System.out.println("userId: " + userId);
+        System.out.println("jobId: " + jobId);
 
         executor.submit(() -> {
             try {
