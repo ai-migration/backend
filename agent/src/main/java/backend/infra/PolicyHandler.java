@@ -1,7 +1,6 @@
 package backend.infra;
 
 import backend.config.kafka.KafkaProcessor;
-import backend.domain.*;
 import backend.dto.AgentEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.transaction.Transactional;
@@ -19,9 +18,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class PolicyHandler {
 
-    private final AgentRepository agentRepository;
-    private final AgentEventStore store;     // 인메모리/Redis 등
-    private final ObjectMapper om;           // 스프링 빈으로 주입
     private final SseController sseController;
 
     private final ObjectMapper mapper = new ObjectMapper();
