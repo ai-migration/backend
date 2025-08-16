@@ -8,6 +8,17 @@ spring:
 
 spring:
   profiles: default
+  data:
+    mongodb:
+      uri: mongodb://admin:admin123@52.79.240.52:27017/conversion_db?authSource=admin
+#  data:
+#    mongodb:
+#      host: localhost
+#      port: 27017
+#      database: conversion_db
+#      username: admin
+#      password: admin123
+#      authentication-database: admin
   jpa:
     properties:
       hibernate:
@@ -39,14 +50,6 @@ spring:
           destination: backend
 #>>> EDA / Topic Name
           contentType: application/json
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      database: conversion_db
-      username: admin
-      password: admin123
-      authentication-database: admin
 
 logging:
   level:
