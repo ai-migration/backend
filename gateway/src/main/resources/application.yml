@@ -20,7 +20,7 @@ spring:
         - id: agent
           uri: http://localhost:8084
           predicates:
-            - Path=/agents/**, 
+            - Path=/agents/**, /response/**, 
         - id: admin
           uri: http://localhost:8085
           predicates:
@@ -64,7 +64,7 @@ spring:
         - id: agent
           uri: http://agent:8080
           predicates:
-            - Path=/agents/**, 
+            - Path=/agents/**, /response/**, 
         - id: admin
           uri: http://admin:8080
           predicates:
