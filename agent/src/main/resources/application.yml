@@ -42,12 +42,12 @@ spring:
         event-in:
           group: java
 #<<< EDA / Topic Name
-          destination: java
+          destination: python-message
 #>>> EDA / Topic Name
           contentType: application/json
         event-out:
 #<<< EDA / Topic Name
-          destination: backend
+          destination: java-message
 #>>> EDA / Topic Name
           contentType: application/json
 
