@@ -5,19 +5,6 @@ spring:
 ---
 spring:
   profiles: default
-<<<<<<< HEAD
-
-  application:
-    name: agent
-
-  # === MySQL (JPA: Agent 등) ===
-  datasource:
-    url: jdbc:mysql://43.201.38.84:3306/egov_llm_platform?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: teammate          # (권장) 루트 대신 전용 계정
-    password: tm1234
-
-=======
   data:
     mongodb:
       uri: mongodb://admin:admin123@52.79.240.52:27017/conversion_db?authSource=admin
@@ -29,7 +16,6 @@ spring:
 #      username: admin
 #      password: admin123
 #      authentication-database: admin
->>>>>>> 9d19b82546e5fb2ddbf18844bd731956a3d2970e
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
@@ -42,10 +28,10 @@ spring:
 
   # === MongoDB (ConversionLog 등) ===
   # === MongoDB (URI로 명시, 로컬은 27019 주의) ===
-  data:
-    mongodb:
-      uri: mongodb://admin:admin123@52.79.240.52:27017/conversion_db?authSource=admin
-      auto-index-creation: true
+  # data:
+  #   mongodb:
+  #     uri: mongodb://admin:admin123@52.79.240.52:27017/conversion_db?authSource=admin
+  #     auto-index-creation: true
 
   # === Kafka (Cloud Stream) ===
   cloud:
