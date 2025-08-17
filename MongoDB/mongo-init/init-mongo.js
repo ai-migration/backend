@@ -11,38 +11,16 @@ db.createCollection("conversion_logs", {
         inputLanguage: { bsonType: "string" },
         s3OriginPath: { bsonType: "string" },
         savedAt: { bsonType: "date" },
-        s3ConvControllerPath: {
-                      bsonType: 'array',
-                      items: { bsonType: 'object' }
-                    },
-        s3ConvServicePath: {
-                      bsonType: 'array',
-                      items: { bsonType: 'object' }
-                    },
-        s3ConvServiceimplPath: {
-                      bsonType: 'array',
-                      items: { bsonType: 'object' }
-                    },
-        s3ConvVoPath: {
-                      bsonType: 'array',
-                      items: { bsonType: 'object' }
-                    },
-        convControllerReport: {
-                      bsonType: 'array',
-                      items: { bsonType: 'object' }
-                    },
-        convServiceReport: {
-                      bsonType: 'array',
-                      items: { bsonType: 'object' }
-                    },
-        convServiceimplReport: {
-                      bsonType: 'array',
-                      items: { bsonType: 'object' }
-                    },
-        convVoReport: {
-                      bsonType: 'array',
-                      items: { bsonType: 'object' }
-                    },
+
+        s3ConvControllerPath:   { bsonType: 'array', items: { bsonType: 'string' } },
+        s3ConvServicePath:      { bsonType: 'array', items: { bsonType: 'string' } },
+        s3ConvServiceimplPath:  { bsonType: 'array', items: { bsonType: 'string' } },
+        s3ConvVoPath:           { bsonType: 'array', items: { bsonType: 'string' } },
+
+        convControllerReport:   { bsonType: 'array', items: { bsonType: 'object' } },
+        convServiceReport:      { bsonType: 'array', items: { bsonType: 'object' } },
+        convServiceimplReport:  { bsonType: 'array', items: { bsonType: 'object' } },
+        convVoReport:           { bsonType: 'array', items: { bsonType: 'object' } }
       }
     }
   }
