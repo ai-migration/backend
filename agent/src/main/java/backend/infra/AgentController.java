@@ -9,10 +9,12 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -64,7 +66,7 @@ public class AgentController {
         }
 
         String fileName = file.getOriginalFilename();
-        String s3SavePath = agent.getUserId() + "/" + agent.getId() + "/" + fileName;
+        String s3SavePath = agent.getUserId() + "/" + agent.getJobId() + "/" + fileName;
         System.out.println("s3SavePath:" + s3SavePath);
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -120,5 +122,14 @@ public class AgentController {
         return ResponseEntity.ok(response);
     }
 
+
+    // 변환 이력 조회
+    @GetMapping("/records/{userId}")
+    public ResponseEntity<?> getAgents(@PathVariable Long userId) {
+        
+        List<ConversionLog> logs = conversionLogRepository.findAllByUserIdOrderBySavedAtDesc(userId);
+        // 비어있으면 빈 배열로 200 반환
+        return ResponseEntity.ok(logs);
+    }
 }
 //>>> Clean Arch / Inbound Adaptor
