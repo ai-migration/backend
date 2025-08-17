@@ -5,6 +5,7 @@ spring:
 ---
 spring:
   profiles: default
+<<<<<<< HEAD
 
   application:
     name: agent
@@ -16,6 +17,19 @@ spring:
     username: teammate          # (권장) 루트 대신 전용 계정
     password: tm1234
 
+=======
+  data:
+    mongodb:
+      uri: mongodb://admin:admin123@52.79.240.52:27017/conversion_db?authSource=admin
+#  data:
+#    mongodb:
+#      host: localhost
+#      port: 27017
+#      database: conversion_db
+#      username: admin
+#      password: admin123
+#      authentication-database: admin
+>>>>>>> 9d19b82546e5fb2ddbf18844bd731956a3d2970e
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
@@ -51,13 +65,25 @@ spring:
         event-in:
           group: java
 #<<< EDA / Topic Name
-          destination: java
+          destination: python-message
 #>>> EDA / Topic Name
           contentType: application/json
         event-out:
 #<<< EDA / Topic Name
+<<<<<<< HEAD
           destination: backend
           contentType: application/json
+=======
+          destination: java-message
+#>>> EDA / Topic Name
+          contentType: application/json
+
+logging:
+  level:
+    org.hibernate.type: trace
+    org.springframework.cloud: debug
+
+>>>>>>> 9d19b82546e5fb2ddbf18844bd731956a3d2970e
 
 server:
   port: 8084
