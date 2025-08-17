@@ -12,7 +12,10 @@ db.createCollection("conversion_logs", {
         s3OriginPath: { bsonType: "string" },
         savedAt: { bsonType: "date" },
         s3ConvPath: { bsonType: "object"},
-        convReport: { bsonType: "object"}
+        convReport: {
+                      bsonType: 'array',
+                      items: { bsonType: 'object' }
+                    }
       }
     }
   }
