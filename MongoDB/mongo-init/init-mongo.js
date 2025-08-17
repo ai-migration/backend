@@ -13,8 +13,7 @@ db.createCollection("conversion_logs", {
         savedAt: { bsonType: "date" },
         s3ConvPath: { bsonType: "object"},
         convReport: { bsonType: "object"}
-      },
-      additionalProperties: false
+      }
     }
   }
 });
