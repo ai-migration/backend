@@ -11,14 +11,18 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.util.UriUtils;
+
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
@@ -47,6 +51,7 @@ public class AgentController {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(s3Path)
+                .responseContentType("application/octet-stream")
                 .build();
 
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
@@ -132,7 +137,36 @@ public class AgentController {
         return ResponseEntity.ok(response);
     }
 
+    // 미리보기 조회
+    @GetMapping("/view/**")
+    public ResponseEntity<String> viewSource(HttpServletRequest request) throws IOException {
+                
+        // 매칭된 패턴과 실제 경로 추출
+        String pathWithinHandler = (String) request.getAttribute(
+                HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE); // /agents/download/0/3/conversion/controller/EgovBoardController.java
+        String bestMatchPattern = (String) request.getAttribute(
+                HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE); // /agents/download/**
 
+        // "download/" 이후의 경로만 추출됨
+        String extractedPath = new AntPathMatcher().extractPathWithinPattern(bestMatchPattern, pathWithinHandler);
+
+        // URL 디코딩 (한글 파일명/폴더 방지)
+        String decodedPath = UriUtils.decode(extractedPath, StandardCharsets.UTF_8);
+        
+        GetObjectRequest req = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(decodedPath)
+                .build();
+        ResponseInputStream<GetObjectResponse> in = s3Client.getObject(req);
+
+        // UTF-8로 문자열 변환
+        String text = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.valueOf("text/plain; charset=UTF-8"))
+                .body(text);
+    }
+    
     // 변환 이력 조회
     @GetMapping("/records/{userId}")
     public ResponseEntity<?> getRecords(@PathVariable Long userId) {
