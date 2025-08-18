@@ -3,19 +3,20 @@ package backend.infra;
 import backend.domain.*;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.util.UriUtils;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -107,14 +108,23 @@ public class AgentController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/download/{userId}/{jobId}/{role}")
-    public ResponseEntity<?> download(@PathVariable Long userId, @PathVariable Long jobId) {
+    @GetMapping("/download/**")
+    public ResponseEntity<?> download(HttpServletRequest request) {
         System.out.println("다운로드 요청");
-        ConversionLog log = conversionLogRepository.findByUserIdAndJobId(jobId, userId)
-                .orElseThrow(() -> new RuntimeException("해당 파일을 찾을 수 없습니다."));
 
-        String s3Path = log.getS3OriginPath();
-        String presignedUrl = generatePresignedUrl(bucketName, s3Path, Duration.ofMinutes(10));
+        // 매칭된 패턴과 실제 경로 추출
+        String pathWithinHandler = (String) request.getAttribute(
+                HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE); // /agents/download/0/3/conversion/controller/EgovBoardController.java
+        String bestMatchPattern = (String) request.getAttribute(
+                HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE); // /agents/download/**
+
+        // "download/" 이후의 경로만 추출됨
+        String extractedPath = new AntPathMatcher().extractPathWithinPattern(bestMatchPattern, pathWithinHandler);
+
+        // URL 디코딩 (한글 파일명/폴더 방지)
+        String decodedPath = UriUtils.decode(extractedPath, StandardCharsets.UTF_8);
+
+        String presignedUrl = generatePresignedUrl(bucketName, decodedPath, Duration.ofMinutes(10));
 
         Map<String, String> response = new HashMap<>();
         response.put("path", presignedUrl);
@@ -125,11 +135,21 @@ public class AgentController {
 
     // 변환 이력 조회
     @GetMapping("/records/{userId}")
-    public ResponseEntity<?> getAgents(@PathVariable Long userId) {
-        
+    public ResponseEntity<?> getRecords(@PathVariable Long userId) {
+
         List<ConversionLog> logs = conversionLogRepository.findAllByUserIdOrderBySavedAtDesc(userId);
         // 비어있으면 빈 배열로 200 반환
         return ResponseEntity.ok(logs);
     }
+
+    // 변환 이력 상세 조회
+    @GetMapping("/records/detail/{jobId}")
+    public ResponseEntity<?> getRecordDetail(@PathVariable Long jobId) {
+        ConversionLog log = conversionLogRepository.findByJobId(jobId)
+                .orElseThrow(() -> new RuntimeException("해당 파일을 찾을 수 없습니다."));
+        // 비어있으면 빈 배열로 200 반환
+        return ResponseEntity.ok(log);
+    }
+
 }
 //>>> Clean Arch / Inbound Adaptor
