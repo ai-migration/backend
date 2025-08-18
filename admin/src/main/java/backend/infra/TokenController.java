@@ -23,6 +23,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.web.bind.annotation.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 //<<< Clean Arch / Inbound Adaptor
 
@@ -83,12 +86,20 @@ public class TokenController {
 
     }
 
-    // 4. 사용자 권한 관리
+    // 4. 사용자 권한 변경
     @PatchMapping("users/{userId}/role")
     public ResponseEntity<?> updateUserRole(@PathVariable Long userId, @RequestBody UpdateUserRoleRequestDto request){
+        // readmodel 수정
         AdminUserReadModel user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("사용자 없음"));
         user.setRole(request.getRole());
         userRepository.save(user);
+
+        // kafka 이벤트 발행
+        UserRoleUpdated event = new UserRoleUpdated();
+        event.setUserId(user.getId());
+        event.setRole(request.getRole());
+        event.publishAfterCommit();
+        
         return ResponseEntity.ok("사용자 권한이 " + request.getRole() + "로 변경되었습니다.");
 
     }
