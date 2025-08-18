@@ -1,11 +1,8 @@
-server:
-  port: 8080
-
 spring:
-  application:
-    name: agent
----
+  profiles:
+    active: default
 
+---
 spring:
   profiles: default
   data:
@@ -20,11 +17,23 @@ spring:
 #      password: admin123
 #      authentication-database: admin
   jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
+
+  # === MongoDB (ConversionLog 등) ===
+  # === MongoDB (URI로 명시, 로컬은 27019 주의) ===
+  # data:
+  #   mongodb:
+  #     uri: mongodb://admin:admin123@52.79.240.52:27017/conversion_db?authSource=admin
+  #     auto-index-creation: true
+
+  # === Kafka (Cloud Stream) ===
   cloud:
     stream:
       kafka:
@@ -47,6 +56,10 @@ spring:
           contentType: application/json
         event-out:
 #<<< EDA / Topic Name
+<<<<<<< HEAD
+          destination: backend
+          contentType: application/json
+=======
           destination: java-message
 #>>> EDA / Topic Name
           contentType: application/json
@@ -56,6 +69,7 @@ logging:
     org.hibernate.type: trace
     org.springframework.cloud: debug
 
+>>>>>>> 9d19b82546e5fb2ddbf18844bd731956a3d2970e
 
 server:
   port: 8084
@@ -65,21 +79,49 @@ aws:
   s3:
     bucket: codefile-storage
   credentials:
+    # 환경변수 또는 EC2 Role 권장. 미설정 시 빈 값 허용
     accessKey: 
     secretKey: 
 
-
+logging:
+  level:
+    org.hibernate.type: trace
+    org.springframework.cloud: debug
 
 ---
-
 spring:
   profiles: docker
+
+  application:
+    name: agent
+
+  # === MySQL (컨테이너 네트워크용) ===
+  datasource:
+    url: jdbc:mysql://mysql-llm:3306/egov_llm_platform?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: teammate
+    password: tm1234
+
   jpa:
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
+
+  # === MongoDB (컨테이너 네트워크용) ===
+  data:
+    mongodb:
+      host: mongodb
+      port: 27017
+      database: conversion_db
+      username: admin
+      password: admin123
+      authentication-database: admin
+
+  # === Kafka (컨테이너 네트워크용) ===
   cloud:
     stream:
       kafka:
@@ -102,4 +144,5 @@ spring:
           destination: backend
           contentType: application/json
 
-
+server:
+  port: 8080

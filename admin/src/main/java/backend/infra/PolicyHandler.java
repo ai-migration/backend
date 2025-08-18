@@ -25,7 +25,7 @@ public class PolicyHandler {
 
     @StreamListener(
         value = KafkaProcessor.INPUT,
-//        condition = "headers['type']=='TokenRequested'"
+        condition = "headers['type']=='TokenRequested'"
     )
     public void wheneverTokenRequested_RequestTokenPolicy(
         @Payload TokenRequested tokenRequested

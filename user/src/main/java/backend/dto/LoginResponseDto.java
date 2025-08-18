@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginResponseDto { // 백엔트->프론트 응답
     private String accessToken;
+    private Long id;
     private String nickname;
     private RoleType role;
 }
