@@ -64,7 +64,7 @@ public class AgentController {
         }
 
         String fileName = file.getOriginalFilename();
-        String s3SavePath = agent.getUserId() + "/" + agent.getId() + "/" + fileName;
+        String s3SavePath = agent.getUserId() + "/" + agent.getJobId() + "/" + fileName;
         System.out.println("s3SavePath:" + s3SavePath);
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -80,7 +80,7 @@ public class AgentController {
         ConversionLog log = new ConversionLog();
         log.setJobId(agent.getJobId());
         log.setUserId(agent.getUserId());
-        log.setS3Path(s3SavePath);
+        log.setS3OriginPath(s3SavePath);
         log.setSavedAt(new Date());
         ConversionLog saved = conversionLogRepository.save(log);
         System.out.println("Saved document: " + saved);
@@ -105,13 +105,13 @@ public class AgentController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/download/{userId}/{jobId}")
+    @GetMapping("/download/{userId}/{jobId}/{role}")
     public ResponseEntity<?> download(@PathVariable Long userId, @PathVariable Long jobId) {
         System.out.println("다운로드 요청");
-        ConversionLog log = conversionLogRepository.findByJobIdAndUserId(jobId, userId)
+        ConversionLog log = conversionLogRepository.findByUserIdAndJobId(jobId, userId)
                 .orElseThrow(() -> new RuntimeException("해당 파일을 찾을 수 없습니다."));
 
-        String s3Path = log.getS3Path();
+        String s3Path = log.getS3OriginPath();
         String presignedUrl = generatePresignedUrl(bucketName, s3Path, Duration.ofMinutes(10));
 
         Map<String, String> response = new HashMap<>();
