@@ -18,5 +18,6 @@ import java.util.Map;
 public class Report {
     private List<Map<String, Object>> conversion = new ArrayList<>();
     private List<Map<String, Object>> generation = new ArrayList<>();
+    private List<Map<String, Object>> evaluation = new ArrayList<>();
 }
 
