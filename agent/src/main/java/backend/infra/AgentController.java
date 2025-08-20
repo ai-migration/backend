@@ -43,6 +43,8 @@ public class AgentController {
     private S3Presigner presigner;
     @Autowired
     private ConversionLogRepository conversionLogRepository;
+    @Autowired
+    private SecurityLogRepository securityLogRepository;
 
     @Value("${aws.s3.bucket}")
     private String bucketName;
@@ -99,10 +101,42 @@ public class AgentController {
         return ResponseEntity.ok().build();
     }
     
-    @PostMapping("/security")
-    public ResponseEntity<?> security(@RequestBody Agent agent) {
+    @PostMapping(value = "/security", consumes = "multipart/form-data")
+    public ResponseEntity<?> security(@RequestPart("agent") Agent agent, @RequestPart("file") MultipartFile file) throws IOException {
         System.out.println("보안 분석 요청");
+
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("파일이 없습니다.");
+        }
+
+        String fileName = file.getOriginalFilename();
+        String s3SavePath = agent.getUserId() + "/" + agent.getJobId() + "/" + fileName;
+        System.out.println("s3SavePath:" + s3SavePath);
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(s3SavePath)
+                .contentType("application/zip")
+                .build();
+
+        // /conversion과 동일: 바이트 업로드 (원하면 fromInputStream으로 바꿔도 됨)
+        s3Client.putObject(putObjectRequest,
+                software.amazon.awssdk.core.sync.RequestBody.fromBytes(file.getBytes()));
+
+        String presignedUrl = generatePresignedUrl(bucketName, s3SavePath, Duration.ofMinutes(60));
+
+        SecurityLog log = new SecurityLog();
+        log.setJobId(agent.getJobId());
+        log.setUserId(agent.getUserId());
+        log.setS3OriginPath(s3SavePath);
+        log.setSavedAt(new Date());
+        SecurityLog saved = securityLogRepository.save(log);
+        System.out.println("Saved document: " + saved);
+
+        // 에이전트 호출
+        agent.setFilePath(presignedUrl);
         agent.securityEvent();
+
         return ResponseEntity.ok().build();
     }
 
