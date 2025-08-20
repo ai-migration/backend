@@ -1,4 +1,4 @@
-db = db.getSiblingDB("conversion_db");
+db = db.getSiblingDB("agent_db");
 
 db.createCollection("conversion_logs", {
   validator: {
@@ -26,10 +26,6 @@ db.createCollection("conversion_logs", {
   }
 });
 
-
-
-db = db.getSiblingDB("security_db");
-
 db.createCollection("security_logs", {
   validator: {
     $jsonSchema: {
@@ -38,7 +34,6 @@ db.createCollection("security_logs", {
       properties: {
         jobId: { bsonType: "long" },
         userId: { bsonType: "long" },
-        inputLanguage: { bsonType: "string" },
         s3OriginPath: { bsonType: "string" },
         savedAt: { bsonType: "date" },
 
