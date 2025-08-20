@@ -25,3 +25,31 @@ db.createCollection("conversion_logs", {
     }
   }
 });
+
+
+
+db = db.getSiblingDB("security_db");
+
+db.createCollection("security_logs", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["jobId", "userId", "s3OriginPath", "savedAt"],
+      properties: {
+        jobId: { bsonType: "long" },
+        userId: { bsonType: "long" },
+        inputLanguage: { bsonType: "string" },
+        s3OriginPath: { bsonType: "string" },
+        savedAt: { bsonType: "date" },
+
+        s3AgentInputsPath:      { bsonType: 'array', items: { bsonType: 'string' } },
+        s3ReportsDir:           { bsonType: 'array', items: { bsonType: 'string' } },
+        s3ReportJsonPath:       { bsonType: 'array', items: { bsonType: 'string' } },
+        issueReportFiles:       { bsonType: 'array', items: { bsonType: 'string' } },
+
+        SecurityReport:       { bsonType: 'array', items: { bsonType: 'object' } },
+        issueCount:   { bsonType: 'array', items: { bsonType: 'int' } }
+      }
+    }
+  }
+});
