@@ -4,6 +4,7 @@ import backend.config.kafka.KafkaProcessor;
 import backend.dto.AgentEvent;
 import backend.dto.ConversionResponse;
 import backend.dto.Report;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.transaction.Transactional;
 
@@ -45,65 +46,69 @@ public class PolicyHandler {
     private ConversionLogRepository conversionLogRepository;
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void whatever(@Payload String eventString) {
-        try {
-            System.out.println(eventString);
-            String normalized = eventString.trim();
+    public void whatever(@Payload String eventString) throws JsonProcessingException {
+//        try {
+        System.out.println(eventString);
+        String normalized = eventString.trim();
 
-            AgentEvent agentEvent = mapper.readValue(normalized, AgentEvent.class);
+        AgentEvent agentEvent = mapper.readValue(normalized, AgentEvent.class);
 
-            sseController.sendMessage(agentEvent);
-            
-            // 결과 저장
-            if (agentEvent.getResult() != null) {
-                ConversionResponse convResult = agentEvent.getResult();
+        sseController.sendMessage(agentEvent);
 
-                List<String> controller = convResult.getControllerEgov();
-                List<String> service = convResult.getServiceEgov();
-                List<String> serviceImpl = convResult.getServiceimplEgov();
-                List<String> vo = convResult.getVoEgov();
+        // 결과 저장
+        if (agentEvent.getResult() != null) {
+            ConversionResponse convResult = agentEvent.getResult();
 
-                ConversionLog log = conversionLogRepository.findByUserIdAndJobId(agentEvent.getUserId(), agentEvent.getJobId())
-                        .orElseThrow(() -> new RuntimeException("해당 파일을 찾을 수 없습니다."));
+            List<String> controller = convResult.getControllerEgov();
+            List<String> service = convResult.getServiceEgov();
+            List<String> serviceImpl = convResult.getServiceimplEgov();
+            List<String> vo = convResult.getVoEgov();
 
-                if (controller != null && !controller.isEmpty()) {
-                    var savedController = SavedResult.uploadAndBuildReport(
-                            controller, convResult.getControllerReport(), "controller", bucketName, s3Client, agentEvent.getUserId(), agentEvent.getJobId()
-                    );
-                    log.setConvControllerReport(savedController.getReportList());
-                    log.setS3ConvControllerPath(savedController.getPathList());
-                }
+            ConversionLog log = conversionLogRepository.findByUserIdAndJobId(agentEvent.getUserId(), agentEvent.getJobId())
+                    .orElseThrow(() -> new RuntimeException("해당 파일을 찾을 수 없습니다."));
 
-                if (service != null && !service.isEmpty()) {
-                    var savedService = SavedResult.uploadAndBuildReport(
-                            service, convResult.getServiceReport(), "service", bucketName, s3Client, agentEvent.getUserId(), agentEvent.getJobId()
-                    );
-                    log.setConvServiceReport(savedService.getReportList());
-                    log.setS3ConvServicePath(savedService.getPathList());
-                }
-
-                if (serviceImpl != null && !serviceImpl.isEmpty()) {
-                    var savedServiceImpl = SavedResult.uploadAndBuildReport(
-                            serviceImpl, convResult.getServiceimplReport(), "serviceImpl", bucketName, s3Client, agentEvent.getUserId(), agentEvent.getJobId()
-                    );
-                    log.setConvServiceimplReport(savedServiceImpl.getReportList());
-                    log.setS3ConvServiceimplPath(savedServiceImpl.getPathList());
-                }
-
-                if (vo != null && !vo.isEmpty()) {
-                    var savedVoRes = SavedResult.uploadAndBuildReport(
-                            vo, convResult.getVoReport(), "vo", bucketName, s3Client, agentEvent.getUserId(), agentEvent.getJobId()
-                    );
-                    log.setConvVoReport(savedVoRes.getReportList());
-                    log.setS3ConvVoPath(savedVoRes.getPathList());
-                }
-
-                ConversionLog saved = conversionLogRepository.save(log);
+            if (controller != null && !controller.isEmpty()) {
+                System.out.println("Controller!!!!");
+                var savedController = SavedResult.uploadAndBuildReport(
+                        controller, convResult.getControllerReport(), "controller", bucketName, s3Client, agentEvent.getUserId(), agentEvent.getJobId()
+                );
+                log.setConvControllerReport(savedController.getReportList());
+                log.setS3ConvControllerPath(savedController.getPathList());
             }
 
-        } catch (Exception ex) {
-            System.out.println(ex);
+            if (service != null && !service.isEmpty()) {
+                System.out.println("service!!!!");
+                var savedService = SavedResult.uploadAndBuildReport(
+                        service, convResult.getServiceReport(), "service", bucketName, s3Client, agentEvent.getUserId(), agentEvent.getJobId()
+                );
+                log.setConvServiceReport(savedService.getReportList());
+                log.setS3ConvServicePath(savedService.getPathList());
+            }
+
+            if (serviceImpl != null && !serviceImpl.isEmpty()) {
+                System.out.println("savedServiceImpl!!!!");
+                var savedServiceImpl = SavedResult.uploadAndBuildReport(
+                        serviceImpl, convResult.getServiceimplReport(), "serviceImpl", bucketName, s3Client, agentEvent.getUserId(), agentEvent.getJobId()
+                );
+                log.setConvServiceimplReport(savedServiceImpl.getReportList());
+                log.setS3ConvServiceimplPath(savedServiceImpl.getPathList());
+            }
+
+            if (vo != null && !vo.isEmpty()) {
+                System.out.println("savedVoRes!!!!");
+                var savedVoRes = SavedResult.uploadAndBuildReport(
+                        vo, convResult.getVoReport(), "vo", bucketName, s3Client, agentEvent.getUserId(), agentEvent.getJobId()
+                );
+                log.setConvVoReport(savedVoRes.getReportList());
+                log.setS3ConvVoPath(savedVoRes.getPathList());
+            }
+
+            ConversionLog saved = conversionLogRepository.save(log);
         }
+
+//        } catch (Exception ex) {
+//            System.out.println(ex);
+//        }
     }
 }
 //>>> Clean Arch / Inbound Adaptor

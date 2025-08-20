@@ -38,13 +38,12 @@ public class SavedResult {
         List<String> pathList = new ArrayList<>();
 
         List<Map<String, Object>> conv = report != null ? report.getConversion() : Collections.emptyList();
-        List<Map<String, Object>> gen  = report != null ? report.getGeneration() : null;
+        List<Map<String, Object>> gen  = report != null ? report.getGeneration() : Collections.emptyList();
+        List<Map<String, Object>> eval  = report != null ? report.getEvaluation() : Collections.emptyList();
 
         int codeSize = codes != null ? codes.size() : 0;
         int convSize = conv != null ? conv.size()   : 0;
         int n = Math.min(codeSize, convSize);
-
-        boolean includeGen = (gen != null && gen.size() >= n);
 
         for (int i = 0; i < n; i++) {
             String code = codes.get(i);
@@ -66,19 +65,26 @@ public class SavedResult {
                     software.amazon.awssdk.core.sync.RequestBody.fromBytes(code.getBytes(StandardCharsets.UTF_8)));
 
             // reportEntry 구성
-            Map<String, Object> entryValue;
-            if (includeGen) {
-                Map<String, Object> both = new LinkedHashMap<>();
-                both.put("conversion", conv.get(i));
-                both.put("generation", gen.get(i));
-                entryValue = both;
-            } else {
-                entryValue = conv.get(i); // conversion만
-            }
+            Map<String, Object> rep = new LinkedHashMap<>();
+            rep.put("conversion", i < conv.size() ? conv.get(i) : Collections.emptyMap());
+            rep.put("generation", i < gen.size() ? gen.get(i) : Collections.emptyMap());
+            rep.put("evaluation", i < eval.size() ? eval.get(i) : Collections.emptyMap());
 
-            // {클래스명.java: entryValue}
             Map<String, Object> res = new LinkedHashMap<>();
-            res.put(className, entryValue);
+            res.put(className, rep);
+
+
+//            Map<String, Object> entryValue;
+//
+//            Map<String, Object> both = new LinkedHashMap<>();
+//            both.put("conversion", conv.get(i));
+//            both.put("generation", gen.get(i));
+//            both.put("evaluation", eval.get(i));
+//            entryValue = both;
+//
+//            // {클래스명.java: entryValue}
+//            Map<String, Object> res = new LinkedHashMap<>();
+//            res.put(className, entryValue);
 
             reportList.add(res);
             pathList.add(savedPath);
