@@ -1,4 +1,4 @@
-db = db.getSiblingDB("conversion_db");
+db = db.getSiblingDB("agent_db");
 
 db.createCollection("conversion_logs", {
   validator: {
@@ -25,10 +25,6 @@ db.createCollection("conversion_logs", {
     }
   }
 });
-
-
-
-db = db.getSiblingDB("security_db");
 
 db.createCollection("security_logs", {
   validator: {
