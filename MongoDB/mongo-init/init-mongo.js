@@ -38,7 +38,6 @@ db.createCollection("security_logs", {
       properties: {
         jobId: { bsonType: "long" },
         userId: { bsonType: "long" },
-        inputLanguage: { bsonType: "string" },
         s3OriginPath: { bsonType: "string" },
         savedAt: { bsonType: "date" },
 
