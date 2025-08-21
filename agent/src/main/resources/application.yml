@@ -10,7 +10,7 @@ spring:
   profiles: default
   data:
     mongodb:
-      uri: mongodb://admin:admin123@52.79.240.52:27017/conversion_db?authSource=admin
+      uri: mongodb://admin:admin123@52.79.240.52:27017/agent_db?authSource=admin
   #  data:
   #    mongodb:
   #      host: localhost
