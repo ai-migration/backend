@@ -12,6 +12,7 @@ import lombok.*;
 public class SecurityRequested extends AbstractEvent {
 
     private Long userId;
+    private Long jobId;
 
     private String filePath;
 

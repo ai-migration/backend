@@ -58,7 +58,10 @@ public class PolicyHandler {
         }
 
         String payload = message.getPayload(); // 실제 메세지
-
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!");
+        System.out.println(message);
+        System.out.println(payload);
+        System.out.println(agent);
         if ("EGOV".equals(agent != null ? agent.trim() : null)) {
             String normalized = payload.trim();
 
