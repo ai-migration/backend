@@ -73,6 +73,9 @@ aws:
 
 spring:
   profiles: docker
+  data:
+    mongodb:
+      uri: mongodb://admin:admin123@52.79.240.52:27017/agent_db?authSource=admin
   jpa:
     properties:
       hibernate:
@@ -92,11 +95,23 @@ spring:
                   serde: org.apache.kafka.common.serialization.Serdes$StringSerde
                 value:
                   serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-      bindings:
-        event-in:
-          group: agent
-          destination: backend
-          contentType: application/json
-        event-out:
-          destination: backend
-          contentType: application/json
+          bindings:
+            event-in:
+              group: java
+              #<<< EDA / Topic Name
+              destination: python-message
+              #>>> EDA / Topic Name
+              contentType: application/json
+            event-out:
+              #<<< EDA / Topic Name
+              destination: java-message
+              #>>> EDA / Topic Name
+              contentType: application/json
+
+aws:
+  region: ap-northeast-2
+  s3:
+    bucket: codefile-storage
+  credentials:
+    accessKey: 
+    secretKey: 

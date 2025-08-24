@@ -1,0 +1,154 @@
+version: '2'
+
+networks:
+  kafka-net:
+    name: kafka-net
+
+services:
+  kafka:
+    image: confluentinc/cp-kafka:latest  # 권장: 특정 버전으로 핀고정(예: 7.6.1)
+    container_name: kafka
+    networks: [kafka-net]
+    ports:
+      - "9092:9092"   # 내부(컨테이너 간) 용도
+      - "9094:9094"   # 호스트(로컬)에서 접속할 때 사용
+    environment:
+      # KRaft 모드 필수 설정
+      CLUSTER_ID: "kraft-cluster-01"
+      KAFKA_KRAFT_MODE: "true"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_NODE_ID: "1"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+
+      # 컨테이너 내부 통신용(PLAINTEXT) + 호스트용(EXTERNAL) + 컨트롤러
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:9094,CONTROLLER://0.0.0.0:9093"
+      # 컨테이너 내부에서 접속 시에는 'kafka:9092', 호스트에서 접속 시에는 'localhost:9094'
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LOG_RETENTION_HOURS: "168"
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+
+    volumes:
+      - /var/lib/kafka/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --list --bootstrap-server kafka:9092 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  admin:
+    image: leeyumin/admin:v1
+    container_name: admin
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - kafka-net 
+    expose:
+      - 8080 
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://43.201.38.84:3306/egov_llm_platform?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: teammate
+      SPRING_DATASOURCE_PASSWORD: tm1234
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: kafka:9092
+
+    restart: always
+
+  agent:
+    image: leeyumin/agent:v1
+    container_name: agent
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - kafka-net 
+    expose:
+      - 8080
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATA_MONGODB_URI: mongodb://admin:admin123@43.201.115.236:27017/agent_db?authSource=admin
+      SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: kafka:9092
+      AWS_CREDENTIALS_ACCESSKEY: 
+      AWS_CREDENTIALS_SECRETKEY: 
+
+    restart: always
+
+  gateway:
+    image: leeyumin/gateway:v1
+    container_name: gateway
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - kafka-net 
+    ports:
+      - 8088:8080
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    restart: always
+
+  noticeboard:
+    image: leeyumin/noticeboard:v1
+    container_name: noticeboard
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - kafka-net 
+    expose:
+      - 8080 
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://43.201.38.84:3306/egov_llm_platform?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: teammate
+      SPRING_DATASOURCE_PASSWORD: tm1234
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: kafka:9092
+
+    restart: always
+  
+  platform:
+    image: leeyumin/platform:v1
+    container_name: platform
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - kafka-net 
+    expose:
+      - 8080 
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: kafka:9092
+
+    restart: always
+
+  user:
+    image: leeyumin/user:v1
+    container_name: user
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - kafka-net 
+    expose:
+      - 8080 
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://43.201.38.84:3306/egov_llm_platform?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: teammate
+      SPRING_DATASOURCE_PASSWORD: tm1234
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: kafka:9092
+
+    restart: always
