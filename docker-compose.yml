@@ -6,7 +6,9 @@ networks:
 
 services:
   kafka:
-    image: confluentinc/cp-kafka:latest  # 권장: 특정 버전으로 핀고정(예: 7.6.1)
+    image: confluentinc/cp-kafka:latest
+    mem_limit: 512m
+    mem_reservation: 384m
     container_name: kafka
     networks: 
       - kafka-net
@@ -14,6 +16,7 @@ services:
       - "9092:9092"   # 내부(컨테이너 간) 용도
       - "9094:9094"   # 호스트(로컬)에서 접속할 때 사용
     environment:
+      KAFKA_HEAP_OPTS: "-Xms256m -Xmx256m"
       # KRaft 모드 필수 설정
       CLUSTER_ID: "kraft-cluster-01"
       KAFKA_KRAFT_MODE: "true"
@@ -79,8 +82,8 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATA_MONGODB_URI: mongodb://admin:admin123@43.201.115.236:27017/agent_db?authSource=admin
       SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: kafka:9092
-      AWS_CREDENTIALS_ACCESSKEY:
-      AWS_CREDENTIALS_SECRETKEY: 
+      AWS_CREDENTIALS_ACCESSKEY: ${AWS_CREDENTIALS_ACCESSKEY}
+      AWS_CREDENTIALS_SECRETKEY: ${AWS_CREDENTIALS_SECRETKEY}
 
     restart: always
 
