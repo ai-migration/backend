@@ -49,6 +49,9 @@ public class User {
     @Column(nullable = false)
     private Boolean tokenIssued = false;
 
+    @Column
+    private Date passwordChangedAt;
+
 //    @PostPersist
 //    public void onPostPersist() {
 //        UserLoggedIn userLoggedIn = new UserLoggedIn(this);

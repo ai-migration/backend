@@ -13,4 +13,5 @@ public class LoginResponseDto { // 백엔트->프론트 응답
     private Long id;
     private String nickname;
     private RoleType role;
+    private boolean isExpired;
 }
