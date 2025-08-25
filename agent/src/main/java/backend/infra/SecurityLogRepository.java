@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SecurityLogRepository extends MongoRepository<SecurityLog, String> {
-    Optional<ConversionLog> findByUserIdAndJobId(Long userId, Long jobId);
-    List<ConversionLog> findAllByUserIdOrderBySavedAtDesc(Long userId);
-    Optional<ConversionLog> findByJobId(Long jobId);
+    Optional<SecurityLog> findByUserIdAndJobId(Long userId, Long jobId);
+    List<SecurityLog> findAllByUserIdOrderBySavedAtDesc(Long userId);
+    Optional<SecurityLog> findByJobId(Long jobId);
 }
 
