@@ -62,16 +62,16 @@ public class PolicyHandler {
         }
 
         String payload = message.getPayload(); // 실제 메세지
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!");
-        System.out.println(message);
-        System.out.println(payload);
-        System.out.println(agent);
+
+        System.out.println("[agent] " + agent + "[message] " + payload);
+
+        String normalized = payload.trim();
+
+        AgentEvent agentEvent = mapper.readValue(normalized, AgentEvent.class);
+
+        sseController.sendMessage(agentEvent);
+        
         if ("EGOV".equals(agent != null ? agent.trim() : null)) {
-            String normalized = payload.trim();
-
-            AgentEvent agentEvent = mapper.readValue(normalized, AgentEvent.class);
-
-            sseController.sendMessage(agentEvent);
 
             // 결과 저장
             if (agentEvent.getResult() != null) {
