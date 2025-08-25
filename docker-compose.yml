@@ -66,7 +66,7 @@ services:
     restart: always
 
   agent:
-    image: leeyumin/agent:v1
+    image: leeyumin/agent:v3
     container_name: agent
     depends_on:
       kafka:
@@ -135,7 +135,7 @@ services:
     restart: always
 
   user:
-    image: leeyumin/user:v1
+    image: leeyumin/user:v2
     container_name: user
     depends_on:
       kafka:
