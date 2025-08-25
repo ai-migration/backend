@@ -7,8 +7,6 @@ networks:
 services:
   kafka:
     image: confluentinc/cp-kafka:latest
-    mem_limit: 512m
-    mem_reservation: 384m
     container_name: kafka
     networks: 
       - kafka-net
@@ -16,7 +14,6 @@ services:
       - "9092:9092"   # 내부(컨테이너 간) 용도
       - "9094:9094"   # 호스트(로컬)에서 접속할 때 사용
     environment:
-      KAFKA_HEAP_OPTS: "-Xms256m -Xmx256m"
       # KRaft 모드 필수 설정
       CLUSTER_ID: "kraft-cluster-01"
       KAFKA_KRAFT_MODE: "true"
