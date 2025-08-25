@@ -86,6 +86,9 @@ spring:
       max-request-size: 200MB
       file-size-threshold: 2MB
       location: /tmp/uploads
+  data:
+    mongodb:
+      uri: mongodb://admin:admin123@52.79.240.52:27017/agent_db?authSource=admin
   jpa:
     properties:
       hibernate:
@@ -107,9 +110,21 @@ spring:
                   serde: org.apache.kafka.common.serialization.Serdes$StringSerde
       bindings:
         event-in:
-          group: agent
-          destination: backend
+          group: java
+          #<<< EDA / Topic Name
+          destination: python-message
+          #>>> EDA / Topic Name
           contentType: application/json
         event-out:
-          destination: backend
+          #<<< EDA / Topic Name
+          destination: java-message
+          #>>> EDA / Topic Name
           contentType: application/json
+
+aws:
+  region: ap-northeast-2
+  s3:
+    bucket: codefile-storage
+  credentials:
+    accessKey: 
+    secretKey: 
