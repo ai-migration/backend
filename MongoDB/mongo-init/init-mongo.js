@@ -37,13 +37,13 @@ db.createCollection("security_logs", {
         s3OriginPath: { bsonType: "string" },
         savedAt: { bsonType: "date" },
 
-        s3AgentInputsPath:      { bsonType: 'array', items: { bsonType: 'string' } },
-        s3ReportsDir:           { bsonType: 'array', items: { bsonType: 'string' } },
-        s3ReportJsonPath:       { bsonType: 'array', items: { bsonType: 'string' } },
+        s3AgentInputsPath:      { bsonType: 'string' },
+        s3ReportsDir:           { bsonType: 'string' },
+        s3ReportJsonPath:       { bsonType: 'string' },
         issueReportFiles:       { bsonType: 'array', items: { bsonType: 'string' } },
 
-        SecurityReport:       { bsonType: 'array', items: { bsonType: 'object' } },
-        issueCount:   { bsonType: 'array', items: { bsonType: 'int' } }
+        securityReport:       { bsonType: 'array', items: { bsonType: 'object' } },
+        issueCount:   { bsonType: 'int' }
       }
     }
   }
