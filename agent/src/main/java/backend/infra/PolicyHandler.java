@@ -4,11 +4,12 @@ import backend.config.kafka.KafkaProcessor;
 import backend.dto.AgentEvent;
 import backend.dto.ConversionResponse;
 import backend.dto.Report;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import backend.dto.SecurityAgentEvent;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import javax.transaction.Transactional;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +48,11 @@ public class PolicyHandler {
     @Autowired
     private ConversionLogRepository conversionLogRepository;
 
+    @Autowired
+    private SecurityLogRepository securityLogRepository;
+
     @StreamListener(KafkaProcessor.INPUT)
-    public void whatever(Message<String> message) throws JsonProcessingException {
+    public void whatever(Message<String> message) throws Exception {
         Object v = message.getHeaders().get("AGENT"); // 보통 byte[]
         String agent = null;
         if (v instanceof byte[]) {
@@ -58,7 +62,10 @@ public class PolicyHandler {
         }
 
         String payload = message.getPayload(); // 실제 메세지
-
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!");
+        System.out.println(message);
+        System.out.println(payload);
+        System.out.println(agent);
         if ("EGOV".equals(agent != null ? agent.trim() : null)) {
             String normalized = payload.trim();
 
@@ -112,6 +119,38 @@ public class PolicyHandler {
 
                 ConversionLog saved = conversionLogRepository.save(log);
             }
+        }
+        if ("SECU".equals(agent != null ? agent.trim() : null)) {
+            // 1) 로컬 매퍼: 기본 ObjectMapper
+            ObjectMapper json  = new ObjectMapper();   // 기본 매퍼: 필드명이 JSON과 동일하면 OK
+            // 2) DTO로 안전 파싱
+            SecurityAgentEvent ev = json.readValue(payload.trim(), SecurityAgentEvent.class);
+
+            Long userId = ev.getUserId();
+            Long jobId  = ev.getJobId();
+
+            SecurityLog log = securityLogRepository.findByUserIdAndJobId(userId, jobId)
+                .orElseThrow(() -> new RuntimeException("보안 로그 문서를 찾을 수 없습니다."));
+            
+            // 3) result가 있을 때만 S3 업로드 수행
+            if (ev.getResult() != null) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> resultMap = json.convertValue(ev.getResult(), Map.class);
+
+                SecuritySavedResult.ProcessResult pr =
+                    SecuritySavedResult.uploadAll(resultMap, bucketName, s3Client, userId, jobId);
+
+                log.setS3AgentInputsPath(pr.getS3AgentInputsPath());
+                log.setS3ReportsDir(pr.getS3ReportsDir());
+                log.setS3ReportJsonPath(pr.getS3ReportJsonPath());
+                log.setIssueReportFiles(pr.getIssueReportFiles());
+                log.setIssueCount(pr.getIssueCount());
+            }
+
+            // (선택) 종료 시각 갱신
+            log.setSavedAt(new Date());
+
+            securityLogRepository.save(log);
         }
 
 //        } catch (Exception ex) {

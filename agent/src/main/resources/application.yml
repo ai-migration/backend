@@ -8,9 +8,16 @@ spring:
 
 spring:
   profiles: default
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 200MB        # 개별 파일 한도 (지금 1MB에 막혀서 이 값을 키워야 함)
+      max-request-size: 200MB     # 요청 전체 한도
+      file-size-threshold: 2MB    # 이보다 크면 디스크로 스풀
+      location: /tmp/uploads      # 임시 폴더(존재/쓰기권한 필요; Windows면 e.g. C:/temp/uploads)
   data:
     mongodb:
-      uri: mongodb://admin:admin123@52.79.240.52:27017/conversion_db?authSource=admin
+      uri: mongodb://admin:admin123@43.201.115.236:27017/agent_db?authSource=admin
   #  data:
   #    mongodb:
   #      host: localhost
@@ -65,14 +72,23 @@ aws:
   s3:
     bucket: codefile-storage
   credentials:
-    accessKey:
-    secretKey:
-
+    accessKey: 
+    secretKey: 
 
 ---
 
 spring:
   profiles: docker
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 200MB
+      max-request-size: 200MB
+      file-size-threshold: 2MB
+      location: /tmp/uploads
+  data:
+    mongodb:
+      uri: mongodb://admin:admin123@52.79.240.52:27017/agent_db?authSource=admin
   jpa:
     properties:
       hibernate:
@@ -94,9 +110,21 @@ spring:
                   serde: org.apache.kafka.common.serialization.Serdes$StringSerde
       bindings:
         event-in:
-          group: agent
-          destination: backend
+          group: java
+          #<<< EDA / Topic Name
+          destination: python-message
+          #>>> EDA / Topic Name
           contentType: application/json
         event-out:
-          destination: backend
+          #<<< EDA / Topic Name
+          destination: java-message
+          #>>> EDA / Topic Name
           contentType: application/json
+
+aws:
+  region: ap-northeast-2
+  s3:
+    bucket: codefile-storage
+  credentials:
+    accessKey: 
+    secretKey: 
