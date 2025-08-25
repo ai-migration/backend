@@ -202,12 +202,23 @@ public class AgentController {
     }
     
     // 변환 이력 조회
-    @GetMapping("/records/{userId}")
-    public ResponseEntity<?> getRecords(@PathVariable Long userId) {
+    @GetMapping("/records/{userId}/{recordType}")
+    public ResponseEntity<?> getRecords(@PathVariable Long userId, @PathVariable String recordType) {
 
-        List<ConversionLog> logs = conversionLogRepository.findAllByUserIdOrderBySavedAtDesc(userId);
-        // 비어있으면 빈 배열로 200 반환
-        return ResponseEntity.ok(logs);
+        if("conversion".equals(recordType)) {
+            List<ConversionLog> logs = conversionLogRepository.findAllByUserIdOrderBySavedAtDesc(userId);
+            // 비어있으면 빈 배열로 200 반환
+            return ResponseEntity.ok(logs);
+
+        }
+        else if("security".equals(recordType)) {
+            List<SecurityLog> logs = securityLogRepository.findAllByUserIdOrderBySavedAtDesc(userId);
+            // 비어있으면 빈 배열로 200 반환
+            return ResponseEntity.ok(logs);
+        }
+        
+        return ResponseEntity.badRequest().body("잘못된 조회입니다.");
+
     }
 
     // 변환 이력 상세 조회
