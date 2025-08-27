@@ -70,7 +70,7 @@ public class PolicyHandler {
         AgentEvent agentEvent = mapper.readValue(normalized, AgentEvent.class);
 
         sseController.sendMessage(agentEvent);
-        
+
         if ("EGOV".equals(agent != null ? agent.trim() : null)) {
 
             // 결과 저장
